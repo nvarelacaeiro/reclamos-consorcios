@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const bcrypt = require\\(''bcrypt''\\); bcrypt.hash\\(''Consorcios2024!'', 10\\).then\\(h => console.log\\(h\\)\\);\")",
+      "Bash(node -e \":*)",
+      "Bash(netstat -ano)"
+    ]
+  }
+}
