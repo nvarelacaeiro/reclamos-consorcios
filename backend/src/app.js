@@ -4,10 +4,7 @@ const cors    = require('cors');
 
 const app = express();
 
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-  : ['http://localhost:5173'];
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth',      require('./routes/auth'));
@@ -25,4 +22,4 @@ app.use((err, req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Backend corriendo en http://localhost:${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Backend corriendo en puerto ${PORT}`));
