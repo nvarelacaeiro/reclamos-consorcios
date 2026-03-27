@@ -5,44 +5,69 @@ const PRIORIDADES = ['baja', 'media', 'alta', 'urgente'];
 
 export default function FormularioEditarReclamo({ reclamoId, onGuardado, onCancelar }) {
   const [form, setForm] = useState({
-    titulo: '', descripcion: '', edificio_texto: '', unidad_texto: '', prioridad: 'media',
+    descripcion: '', edificio_id: '', edificio_texto: '',
+    unidad_texto: '', prioridad: 'media', proveedor_id: '',
   });
+  const [categoriaLabel, setCategoriaLabel] = useState('');
+  const [edificios,   setEdificios]   = useState([]);
+  const [proveedores, setProveedores] = useState([]);
   const [loading,  setLoading]  = useState(false);
   const [cargando, setCargando] = useState(true);
   const [error,    setError]    = useState('');
 
   useEffect(() => {
-    api.get(`/reclamos/${reclamoId}`).then(r => {
-      const rec = r.data;
+    Promise.all([
+      api.get('/edificios'),
+      api.get('/proveedores'),
+      api.get(`/reclamos/${reclamoId}`),
+    ]).then(([edRes, provRes, recRes]) => {
+      const eds  = edRes.data;
+      const provs = provRes.data;
+      const rec  = recRes.data;
+
+      setEdificios(eds);
+      setProveedores(provs);
+      setCategoriaLabel(rec.tipo_nombre || '');
+
+      // Intentar encontrar el edificio por nombre
+      const edificioActual = (rec.edificio_texto ?? rec.edificio_nombre ?? '').trim();
+      const match = eds.find(e =>
+        e.nombre.toLowerCase().trim() === edificioActual.toLowerCase()
+      );
+
       setForm({
-        titulo:         rec.titulo          || '',
         descripcion:    rec.descripcion     || '',
-        edificio_texto: rec.edificio_texto  ?? rec.edificio_nombre ?? '',
-        unidad_texto:   rec.unidad_texto    ?? rec.unidad_numero   ?? '',
+        edificio_id:    match ? String(match.id) : '',
+        edificio_texto: match ? match.nombre : edificioActual,
+        unidad_texto:   rec.unidad_texto    ?? rec.unidad_numero ?? '',
         prioridad:      rec.prioridad       || 'media',
+        proveedor_id:   rec.proveedor_id    ? String(rec.proveedor_id) : '',
       });
       setCargando(false);
     });
   }, [reclamoId]);
 
-  function set(field, value) {
-    setForm(f => ({ ...f, [field]: value }));
+  function set(field, value) { setForm(f => ({ ...f, [field]: value })); }
+
+  function handleEdificio(e) {
+    const id = e.target.value;
+    const ed = edificios.find(ed => String(ed.id) === id);
+    setForm(f => ({ ...f, edificio_id: id, edificio_texto: ed?.nombre || '' }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    if (!form.titulo.trim())         { setError('El título es requerido'); return; }
     if (!form.edificio_texto.trim()) { setError('El edificio es requerido'); return; }
 
     setLoading(true);
     try {
       const { data } = await api.put(`/reclamos/${reclamoId}`, {
-        titulo:         form.titulo.trim(),
         descripcion:    form.descripcion || null,
         edificio_texto: form.edificio_texto.trim(),
         unidad_texto:   form.unidad_texto.trim() || null,
         prioridad:      form.prioridad,
+        proveedor_id:   form.proveedor_id || null,
       });
       onGuardado(data);
     } catch (err) {
@@ -61,23 +86,19 @@ export default function FormularioEditarReclamo({ reclamoId, onGuardado, onCance
           <p className="cargando">Cargando…</p>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-            <label>Título *</label>
-            <input
-              required value={form.titulo}
-              onChange={e => set('titulo', e.target.value)}
-              placeholder="Descripción breve del problema"
-            />
+
+            <label>Categoría</label>
+            <div className="campo-readonly">{categoriaLabel}</div>
 
             <div className="form-row">
               <div>
                 <label>Edificio *</label>
-                <input
-                  type="text"
-                  value={form.edificio_texto}
-                  onChange={e => set('edificio_texto', e.target.value)}
-                  placeholder="Ej: Torre Norte"
-                  maxLength={150}
-                />
+                <select value={form.edificio_id} onChange={handleEdificio}>
+                  <option value="">Seleccioná un edificio</option>
+                  {edificios.map(e => (
+                    <option key={e.id} value={e.id}>{e.nombre}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label>Unidad</label>
@@ -97,6 +118,17 @@ export default function FormularioEditarReclamo({ reclamoId, onGuardado, onCance
                 <select value={form.prioridad} onChange={e => set('prioridad', e.target.value)}>
                   {PRIORIDADES.map(p => (
                     <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Proveedor asignado</label>
+                <select value={form.proveedor_id} onChange={e => set('proveedor_id', e.target.value)}>
+                  <option value="">Sin proveedor</option>
+                  {proveedores.map(p => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.nombre}{p.rubro ? ` — ${p.rubro}` : ''}
+                    </option>
                   ))}
                 </select>
               </div>

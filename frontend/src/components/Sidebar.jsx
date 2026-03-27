@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 const links = [
   { to: '/reclamos',     label: 'Gestión de reclamos', icon: '📋' },
   { to: '/estadisticas', label: 'Dashboard',            icon: '📊' },
+  { to: '/edificios',    label: 'Edificios',            icon: '🏢' },
+  { to: '/proveedores',  label: 'Proveedores',          icon: '🔧' },
+  { to: '/categorias',   label: 'Categorías',           icon: '🏷️' },
 ];
 
 const adminLinks = [

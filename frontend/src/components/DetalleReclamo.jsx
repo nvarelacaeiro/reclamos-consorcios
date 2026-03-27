@@ -73,6 +73,23 @@ export default function DetalleReclamo({ reclamoId, onCerrar, onActualizado }) {
           <MetaItem label="⚡ Prioridad" value={reclamo.prioridad} />
           <MetaItem label="👤 Operador"  value={reclamo.creado_por_nombre} />
           <MetaItem label="📅 Cargado"   value={fmtFecha(reclamo.created_at)} />
+          {reclamo.proveedor_nombre && (
+            <span className="detalle-meta-item">
+              <strong>🛠️ Proveedor</strong>
+              {reclamo.proveedor_nombre}
+              {reclamo.proveedor_telefono && (
+                <a
+                  href={`https://wa.me/549${reclamo.proveedor_telefono.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-wa"
+                  style={{ marginLeft: 6 }}
+                >
+                  WhatsApp
+                </a>
+              )}
+            </span>
+          )}
         </div>
 
         <hr />

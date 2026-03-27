@@ -5,6 +5,9 @@ import Dashboard from './components/Dashboard';
 import GestionReclamos from './components/GestionReclamos';
 import EstadisticasDashboard from './components/EstadisticasDashboard';
 import GestionUsuarios from './components/GestionUsuarios';
+import GestionEdificios from './components/GestionEdificios';
+import GestionCategorias from './components/GestionCategorias';
+import GestionProveedores from './components/GestionProveedores';
 
 function PrivateRoute({ children }) {
   const { usuario, cargando } = useAuth();
@@ -36,6 +39,9 @@ export default function App() {
             <Route index element={<Navigate to="/reclamos" replace />} />
             <Route path="reclamos"     element={<GestionReclamos />} />
             <Route path="estadisticas" element={<EstadisticasDashboard />} />
+            <Route path="edificios"    element={<GestionEdificios />} />
+            <Route path="categorias"   element={<GestionCategorias />} />
+            <Route path="proveedores"  element={<GestionProveedores />} />
             <Route path="usuarios"     element={<AdminRoute><GestionUsuarios /></AdminRoute>} />
           </Route>
           <Route path="*" element={<Navigate to="/reclamos" replace />} />

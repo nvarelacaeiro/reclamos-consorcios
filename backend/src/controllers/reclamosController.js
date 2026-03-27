@@ -41,8 +41,10 @@ async function detectarYMarcarRepetido(conn, edificioTexto, tipoId, nuevoReclamo
 }
 
 // Columna de display de edificio y unidad usada en todas las queries
-const EDIFICIO_COL = "COALESCE(r.edificio_texto, e.nombre) AS edificio_nombre";
-const UNIDAD_COL   = "COALESCE(r.unidad_texto, u.numero)   AS unidad_numero";
+const EDIFICIO_COL   = "COALESCE(r.edificio_texto, e.nombre) AS edificio_nombre";
+const UNIDAD_COL     = "COALESCE(r.unidad_texto, u.numero)   AS unidad_numero";
+const PROVEEDOR_COLS = "p.nombre AS proveedor_nombre, p.telefono AS proveedor_telefono";
+const PROVEEDOR_JOIN = "LEFT JOIN proveedores p ON p.id = r.proveedor_id";
 
 // GET /api/reclamos
 async function listar(req, res) {
@@ -82,12 +84,14 @@ async function listar(req, res) {
       ${EDIFICIO_COL},
       ${UNIDAD_COL},
       t.nombre  AS tipo_nombre,
-      us.nombre AS creado_por_nombre
+      us.nombre AS creado_por_nombre,
+      ${PROVEEDOR_COLS}
     FROM reclamos r
     LEFT JOIN edificios    e  ON e.id  = r.edificio_id
     LEFT JOIN unidades     u  ON u.id  = r.unidad_id
     JOIN  tipos_reclamo    t  ON t.id  = r.tipo_id
     JOIN  usuarios         us ON us.id = r.creado_por
+    ${PROVEEDOR_JOIN}
     ${where}
     ORDER BY
       FIELD(r.prioridad,'urgente','alta','media','baja'),
@@ -149,12 +153,14 @@ async function obtener(req, res) {
        ${EDIFICIO_COL},
        ${UNIDAD_COL},
        t.nombre  AS tipo_nombre,
-       us.nombre AS creado_por_nombre
+       us.nombre AS creado_por_nombre,
+       ${PROVEEDOR_COLS}
      FROM reclamos r
      LEFT JOIN edificios    e  ON e.id  = r.edificio_id
      LEFT JOIN unidades     u  ON u.id  = r.unidad_id
      JOIN  tipos_reclamo    t  ON t.id  = r.tipo_id
      JOIN  usuarios         us ON us.id = r.creado_por
+     ${PROVEEDOR_JOIN}
      WHERE r.id = ?`,
     [req.params.id]
   );
@@ -174,7 +180,7 @@ async function obtener(req, res) {
 
 // POST /api/reclamos
 async function crear(req, res) {
-  const { titulo, descripcion, edificio_texto, unidad_texto, tipo_id, prioridad } = req.body;
+  const { titulo, descripcion, edificio_texto, unidad_texto, tipo_id, prioridad, proveedor_id } = req.body;
 
   if (!titulo || !titulo.trim())
     return res.status(400).json({ error: 'El título es requerido' });
@@ -191,8 +197,8 @@ async function crear(req, res) {
 
     const [result] = await conn.query(
       `INSERT INTO reclamos
-         (titulo, descripcion, edificio_texto, unidad_texto, tipo_id, prioridad, creado_por)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         (titulo, descripcion, edificio_texto, unidad_texto, tipo_id, prioridad, proveedor_id, creado_por)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         titulo.trim(),
         descripcion || null,
@@ -200,6 +206,7 @@ async function crear(req, res) {
         unidad_texto ? unidad_texto.trim() : null,
         tipo_id,
         prioridad || 'media',
+        proveedor_id || null,
         req.usuario.id,
       ]
     );
@@ -214,12 +221,14 @@ async function crear(req, res) {
          ${EDIFICIO_COL},
          ${UNIDAD_COL},
          t.nombre AS tipo_nombre,
-         us.nombre AS creado_por_nombre
+         us.nombre AS creado_por_nombre,
+         ${PROVEEDOR_COLS}
        FROM reclamos r
        LEFT JOIN edificios e ON e.id = r.edificio_id
        LEFT JOIN unidades  u ON u.id = r.unidad_id
        JOIN  tipos_reclamo t ON t.id = r.tipo_id
        JOIN  usuarios      us ON us.id = r.creado_por
+       ${PROVEEDOR_JOIN}
        WHERE r.id = ?`,
       [nuevoId]
     );
@@ -235,7 +244,7 @@ async function crear(req, res) {
 
 // PUT /api/reclamos/:id
 async function actualizar(req, res) {
-  const { titulo, descripcion, edificio_texto, unidad_texto, prioridad } = req.body;
+  const { titulo, descripcion, edificio_texto, unidad_texto, prioridad, proveedor_id } = req.body;
 
   const [rows] = await db.query('SELECT id FROM reclamos WHERE id = ?', [req.params.id]);
   if (!rows.length) return res.status(404).json({ error: 'Reclamo no encontrado' });
@@ -253,6 +262,7 @@ async function actualizar(req, res) {
   if (edificio_texto !== undefined) { campos.push('edificio_texto = ?'); params.push(edificio_texto.trim()); }
   if (unidad_texto !== undefined)   { campos.push('unidad_texto = ?');   params.push(unidad_texto ? unidad_texto.trim() : null); }
   if (prioridad !== undefined)      { campos.push('prioridad = ?');      params.push(prioridad); }
+  if (proveedor_id !== undefined)   { campos.push('proveedor_id = ?');   params.push(proveedor_id || null); }
 
   if (!campos.length) return res.status(400).json({ error: 'No hay campos para actualizar' });
 
@@ -264,12 +274,14 @@ async function actualizar(req, res) {
        ${EDIFICIO_COL},
        ${UNIDAD_COL},
        t.nombre AS tipo_nombre,
-       us.nombre AS creado_por_nombre
+       us.nombre AS creado_por_nombre,
+       ${PROVEEDOR_COLS}
      FROM reclamos r
      LEFT JOIN edificios e ON e.id = r.edificio_id
      LEFT JOIN unidades  u ON u.id = r.unidad_id
      JOIN  tipos_reclamo t ON t.id = r.tipo_id
      JOIN  usuarios      us ON us.id = r.creado_por
+     ${PROVEEDOR_JOIN}
      WHERE r.id = ?`,
     [req.params.id]
   );

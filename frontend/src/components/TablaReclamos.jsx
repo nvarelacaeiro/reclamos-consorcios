@@ -74,12 +74,13 @@ export default function TablaReclamos({ onSeleccionar, onNuevo, reclamoActualiza
                 <tr>
                   <th>#</th>
                   <th>Prioridad</th>
-                  <th>Título</th>
+                  <th>Categoría</th>
                   <th>Edificio</th>
                   <th>Unidad</th>
                   <th>Tipo</th>
                   <th>Estado</th>
                   <th>Reps.</th>
+                  <th>Proveedor</th>
                   <th>Operador</th>
                   <th>Fecha</th>
                   <th></th>
@@ -110,6 +111,9 @@ export default function TablaReclamos({ onSeleccionar, onNuevo, reclamoActualiza
                     </td>
                     <td>
                       {r.repeticiones > 1 ? <strong>{r.repeticiones}</strong> : r.repeticiones}
+                    </td>
+                    <td className="td-operador">
+                      {r.proveedor_nombre || <span style={{ color: 'var(--text-3)' }}>—</span>}
                     </td>
                     <td className="td-operador">{r.creado_por_nombre}</td>
                     <td className="td-fecha">{fmtFecha(r.created_at)}</td>

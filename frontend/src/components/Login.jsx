@@ -27,10 +27,9 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-brand">
-          <div className="login-brand-icon">🏢</div>
-          <h1>Reclamos Consorcios</h1>
+          <img src="/logo-catsa.png" alt="CATSA" className="login-logo" />
         </div>
-        <p className="login-subtitle">Ingresá con tu cuenta para continuar</p>
+        <p className="login-subtitle">Gestión de Reclamos — Ingresá con tu cuenta</p>
         <form onSubmit={handleSubmit}>
           <label>Email</label>
           <input

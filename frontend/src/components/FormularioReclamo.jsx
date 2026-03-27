@@ -4,21 +4,27 @@ import api from '../services/api';
 const PRIORIDADES = ['baja', 'media', 'alta', 'urgente'];
 
 export default function FormularioReclamo({ onGuardado, onCancelar }) {
-  const [tipos,   setTipos]   = useState([]);
-  const [form,    setForm]    = useState({
-    titulo: '', descripcion: '',
-    edificio_texto: '', unidad_texto: '',
-    tipo_id: '', prioridad: 'media',
+  const [categorias,  setCategorias]  = useState([]);
+  const [edificios,   setEdificios]   = useState([]);
+  const [proveedores, setProveedores] = useState([]);
+
+  const [form, setForm] = useState({
+    tipo_id: '', titulo: '',
+    edificio_id: '', edificio_texto: '',
+    unidad_texto: '', prioridad: 'media',
+    descripcion: '', proveedor_id: '',
   });
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [alerta,  setAlerta]  = useState(null);
 
   useEffect(() => {
-    api.get('/reclamos/tipos').then(r => setTipos(r.data));
+    api.get('/categorias').then(r => setCategorias(r.data));
+    api.get('/edificios').then(r => setEdificios(r.data));
+    api.get('/proveedores').then(r => setProveedores(r.data));
   }, []);
 
-  // Alerta de repetidos: busca por edificio_texto + tipo
+  // Alerta de repetidos
   useEffect(() => {
     const edificio = form.edificio_texto.trim();
     if (edificio.length < 2 || !form.tipo_id) { setAlerta(null); return; }
@@ -37,23 +43,34 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
     setForm(f => ({ ...f, [field]: value }));
   }
 
+  function handleCategoria(e) {
+    const id = e.target.value;
+    const cat = categorias.find(c => String(c.id) === id);
+    setForm(f => ({ ...f, tipo_id: id, titulo: cat?.nombre || '' }));
+  }
+
+  function handleEdificio(e) {
+    const id = e.target.value;
+    const ed = edificios.find(ed => String(ed.id) === id);
+    setForm(f => ({ ...f, edificio_id: id, edificio_texto: ed?.nombre || '' }));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-
-    if (!form.titulo.trim())          { setError('El título es requerido'); return; }
+    if (!form.tipo_id)                { setError('La categoría es requerida'); return; }
     if (!form.edificio_texto.trim())  { setError('El edificio es requerido'); return; }
-    if (!form.tipo_id)                { setError('El tipo de reclamo es requerido'); return; }
 
     setLoading(true);
     try {
       const { data } = await api.post('/reclamos', {
-        titulo:         form.titulo.trim(),
+        titulo:         form.titulo,
         descripcion:    form.descripcion || null,
         edificio_texto: form.edificio_texto.trim(),
         unidad_texto:   form.unidad_texto.trim() || null,
         tipo_id:        form.tipo_id,
         prioridad:      form.prioridad,
+        proveedor_id:   form.proveedor_id || null,
       });
       onGuardado(data);
     } catch (err) {
@@ -71,23 +88,24 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
         {alerta && <div className="alerta-repetido">⚠️ {alerta}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
-          <label>Título *</label>
-          <input
-            required value={form.titulo}
-            onChange={e => set('titulo', e.target.value)}
-            placeholder="Descripción breve del problema"
-          />
+
+          <label>Categoría *</label>
+          <select required value={form.tipo_id} onChange={handleCategoria}>
+            <option value="">Seleccioná una categoría</option>
+            {categorias.map(c => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
 
           <div className="form-row">
             <div>
               <label>Edificio *</label>
-              <input
-                type="text"
-                value={form.edificio_texto}
-                onChange={e => set('edificio_texto', e.target.value)}
-                placeholder="Ej: Torre Norte, Av. Corrientes 1234"
-                maxLength={150}
-              />
+              <select required value={form.edificio_id} onChange={handleEdificio}>
+                <option value="">Seleccioná un edificio</option>
+                {edificios.map(e => (
+                  <option key={e.id} value={e.id}>{e.nombre}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label>Unidad</label>
@@ -103,16 +121,22 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
 
           <div className="form-row">
             <div>
-              <label>Tipo de reclamo *</label>
-              <select required value={form.tipo_id} onChange={e => set('tipo_id', e.target.value)}>
-                <option value="">Seleccioná</option>
-                {tipos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+              <label>Prioridad inicial</label>
+              <select value={form.prioridad} onChange={e => set('prioridad', e.target.value)}>
+                {PRIORIDADES.map(p => (
+                  <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label>Prioridad inicial</label>
-              <select value={form.prioridad} onChange={e => set('prioridad', e.target.value)}>
-                {PRIORIDADES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+              <label>Proveedor asignado</label>
+              <select value={form.proveedor_id} onChange={e => set('proveedor_id', e.target.value)}>
+                <option value="">Sin proveedor</option>
+                {proveedores.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre}{p.rubro ? ` — ${p.rubro}` : ''}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -121,7 +145,7 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
           <textarea
             rows={4} value={form.descripcion}
             onChange={e => set('descripcion', e.target.value)}
-            placeholder="Detalle adicional (opcional)"
+            placeholder="Detalle adicional del problema (opcional)"
           />
 
           {error && <p className="error-msg">{error}</p>}

@@ -24,7 +24,7 @@ export default function Dashboard() {
           >
             {sidebarOpen ? '✕' : '☰'}
           </button>
-          <span className="topbar-titulo">🏢 Reclamos Consorcios</span>
+          <img src="/logo-catsa.png" alt="CATSA" className="topbar-logo" />
         </div>
         <div className="topbar-user">
           <span className="topbar-user-name">{usuario?.nombre}</span>
