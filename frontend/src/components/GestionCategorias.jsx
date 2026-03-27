@@ -107,37 +107,55 @@ export default function GestionCategorias() {
         ) : categorias.length === 0 ? (
           <p className="sin-datos">No hay categorías registradas.</p>
         ) : (
-          <div className="tabla-desktop">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Nombre</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {categorias.map(c => (
-                  <tr key={c.id} style={{ cursor: 'default' }}>
-                    <td>{c.id}</td>
-                    <td style={{ color: 'var(--text)', fontWeight: 500 }}>{c.nombre}</td>
-                    <td className="acciones-col">
-                      <button
-                        className="btn-accion"
-                        title="Editar"
-                        onClick={() => { setEditando(c); setModalForm(true); }}
-                      >✏️</button>
-                      <button
-                        className="btn-accion btn-eliminar"
-                        title="Eliminar"
-                        onClick={() => { setEliminandoId(c.id); setErrorElim(''); }}
-                      >🗑️</button>
-                    </td>
+          <>
+            <div className="tabla-desktop">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {categorias.map(c => (
+                    <tr key={c.id} style={{ cursor: 'default' }}>
+                      <td>{c.id}</td>
+                      <td style={{ color: 'var(--text)', fontWeight: 500 }}>{c.nombre}</td>
+                      <td className="acciones-col">
+                        <button
+                          className="btn-accion"
+                          title="Editar"
+                          onClick={() => { setEditando(c); setModalForm(true); }}
+                        >✏️</button>
+                        <button
+                          className="btn-accion btn-eliminar"
+                          title="Eliminar"
+                          onClick={() => { setEliminandoId(c.id); setErrorElim(''); }}
+                        >🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="tabla-mobile">
+              {categorias.map(c => (
+                <div key={c.id} className="gestion-card">
+                  <div className="gestion-card-title">{c.nombre}</div>
+                  <div className="gestion-card-actions">
+                    <button className="btn-secondary" onClick={() => { setEditando(c); setModalForm(true); }}>
+                      ✏️ Editar
+                    </button>
+                    <button className="btn-danger" style={{ padding: '7px 12px' }} onClick={() => { setEliminandoId(c.id); setErrorElim(''); }}>
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

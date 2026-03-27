@@ -146,65 +146,104 @@ export default function GestionProveedores() {
         ) : proveedores.length === 0 ? (
           <p className="sin-datos">No hay proveedores registrados.</p>
         ) : (
-          <div className="tabla-desktop">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Nombre</th>
-                  <th>Rubro</th>
-                  <th>Teléfono</th>
-                  <th>Notas</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {proveedores.map(p => {
-                  const wa = waLink(p.telefono);
-                  return (
-                    <tr key={p.id} style={{ cursor: 'default' }}>
-                      <td>{p.id}</td>
-                      <td style={{ color: 'var(--text)', fontWeight: 500 }}>{p.nombre}</td>
-                      <td>{p.rubro || '—'}</td>
-                      <td>
-                        {p.telefono ? (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {p.telefono}
-                            {wa && (
-                              <a
-                                href={wa}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn-wa"
-                                title="Abrir WhatsApp"
-                              >
-                                WhatsApp
-                              </a>
-                            )}
-                          </span>
-                        ) : '—'}
-                      </td>
-                      <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {p.notas || '—'}
-                      </td>
-                      <td className="acciones-col">
-                        <button
-                          className="btn-accion"
-                          title="Editar"
-                          onClick={() => { setEditando(p); setModalForm(true); }}
-                        >✏️</button>
-                        <button
-                          className="btn-accion btn-eliminar"
-                          title="Eliminar"
-                          onClick={() => setEliminandoId(p.id)}
-                        >🗑️</button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="tabla-desktop">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Rubro</th>
+                    <th>Teléfono</th>
+                    <th>Notas</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proveedores.map(p => {
+                    const wa = waLink(p.telefono);
+                    return (
+                      <tr key={p.id} style={{ cursor: 'default' }}>
+                        <td>{p.id}</td>
+                        <td style={{ color: 'var(--text)', fontWeight: 500 }}>{p.nombre}</td>
+                        <td>{p.rubro || '—'}</td>
+                        <td>
+                          {p.telefono ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {p.telefono}
+                              {wa && (
+                                <a
+                                  href={wa}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="btn-wa"
+                                  title="Abrir WhatsApp"
+                                >
+                                  WhatsApp
+                                </a>
+                              )}
+                            </span>
+                          ) : '—'}
+                        </td>
+                        <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.notas || '—'}
+                        </td>
+                        <td className="acciones-col">
+                          <button
+                            className="btn-accion"
+                            title="Editar"
+                            onClick={() => { setEditando(p); setModalForm(true); }}
+                          >✏️</button>
+                          <button
+                            className="btn-accion btn-eliminar"
+                            title="Eliminar"
+                            onClick={() => setEliminandoId(p.id)}
+                          >🗑️</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="tabla-mobile">
+              {proveedores.map(p => {
+                const wa = waLink(p.telefono);
+                return (
+                  <div key={p.id} className="gestion-card">
+                    <div className="gestion-card-title">{p.nombre}</div>
+                    <div className="gestion-card-sub">
+                      {p.rubro && <span>{p.rubro}</span>}
+                      {p.rubro && p.telefono && ' · '}
+                      {p.telefono && (
+                        <span>
+                          {p.telefono}
+                          {wa && (
+                            <a href={wa} target="_blank" rel="noreferrer" className="btn-wa" style={{ marginLeft: 6 }}>
+                              WhatsApp
+                            </a>
+                          )}
+                        </span>
+                      )}
+                      {!p.rubro && !p.telefono && '—'}
+                    </div>
+                    {p.notas && (
+                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 4 }}>{p.notas}</div>
+                    )}
+                    <div className="gestion-card-actions">
+                      <button className="btn-secondary" onClick={() => { setEditando(p); setModalForm(true); }}>
+                        ✏️ Editar
+                      </button>
+                      <button className="btn-danger" style={{ padding: '7px 12px' }} onClick={() => setEliminandoId(p.id)}>
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

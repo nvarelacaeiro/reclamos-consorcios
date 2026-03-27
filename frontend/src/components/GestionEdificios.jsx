@@ -198,7 +198,7 @@ export default function GestionEdificios() {
         ) : edificios.length === 0 ? (
           <p className="sin-datos">No hay edificios registrados.</p>
         ) : (
-          <div className="tabla-desktop">
+          <><div className="tabla-desktop">
             <table>
               <thead>
                 <tr>
@@ -245,6 +245,35 @@ export default function GestionEdificios() {
               </tbody>
             </table>
           </div>
+
+          <div className="tabla-mobile">
+            {edificios.map(e => (
+              <div key={e.id} className="gestion-card">
+                <div className="gestion-card-title">{e.nombre}</div>
+                <div className="gestion-card-sub">📍 {e.direccion}</div>
+                {e.total_reclamos > 0 ? (
+                  <button
+                    className="btn-secondary"
+                    style={{ fontSize: 12, padding: '5px 12px' }}
+                    onClick={() => setVerReclamos(e)}
+                  >
+                    Ver {e.total_reclamos} reclamo{e.total_reclamos !== 1 ? 's' : ''}
+                  </button>
+                ) : (
+                  <span style={{ fontSize: 12, color: 'var(--text-3)' }}>Sin reclamos</span>
+                )}
+                <div className="gestion-card-actions">
+                  <button className="btn-secondary" onClick={() => { setEditando(e); setModalForm(true); }}>
+                    ✏️ Editar
+                  </button>
+                  <button className="btn-danger" style={{ padding: '7px 12px' }} onClick={() => { setEliminandoId(e.id); setErrorElim(''); }}>
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </div>
 
