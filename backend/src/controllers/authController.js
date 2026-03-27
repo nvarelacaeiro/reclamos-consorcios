@@ -29,8 +29,8 @@ async function login(req, res) {
       usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
     });
   } catch (err) {
-    console.error('Login error:', err.message);
-    res.status(500).json({ error: 'Error interno del servidor', detail: err.message });
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Error interno del servidor', detail: err.message, code: err.code, errno: err.errno });
   }
 }
 
