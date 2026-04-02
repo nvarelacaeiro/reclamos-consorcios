@@ -109,44 +109,81 @@ export default function GestionUsuarios() {
           {cargando ? (
             <p className="cargando">Cargando…</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Creado</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Desktop */}
+              <div className="tabla-desktop">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Email</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Creado</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usuarios.map(u => (
+                      <tr key={u.id} className={!u.activo ? 'usuario-inactivo' : ''}>
+                        <td>{u.nombre}</td>
+                        <td>{u.email}</td>
+                        <td>
+                          <span className={`badge-rol badge-rol-${u.rol}`}>{u.rol}</span>
+                        </td>
+                        <td>
+                          <span className={u.activo ? 'estado estado-resuelto' : 'estado estado-cerrado'}>
+                            {u.activo ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
+                        <td>
+                          <button
+                            className="btn-secondary"
+                            style={{ fontSize: '12px', padding: '4px 10px' }}
+                            onClick={() => toggleActivo(u)}
+                          >
+                            {u.activo ? 'Desactivar' : 'Activar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="tabla-mobile">
                 {usuarios.map(u => (
-                  <tr key={u.id} className={!u.activo ? 'usuario-inactivo' : ''}>
-                    <td>{u.nombre}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <span className={`badge-rol badge-rol-${u.rol}`}>{u.rol}</span>
-                    </td>
-                    <td>
+                  <div key={u.id} className={`gestion-card ${!u.activo ? 'usuario-card-inactivo' : ''}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                      <div>
+                        <div className="gestion-card-title" style={{ marginBottom: 2 }}>{u.nombre}</div>
+                        <div className="gestion-card-sub" style={{ marginBottom: 6 }}>{u.email}</div>
+                      </div>
                       <span className={u.activo ? 'estado estado-resuelto' : 'estado estado-cerrado'}>
                         {u.activo ? 'Activo' : 'Inactivo'}
                       </span>
-                    </td>
-                    <td>{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
-                    <td>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <span className={`badge-rol badge-rol-${u.rol}`}>{u.rol}</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-3)' }}>
+                          {new Date(u.created_at).toLocaleDateString('es-AR')}
+                        </span>
+                      </div>
                       <button
                         className="btn-secondary"
-                        style={{ fontSize: '12px', padding: '4px 10px' }}
+                        style={{ fontSize: '12px', padding: '5px 12px' }}
                         onClick={() => toggleActivo(u)}
                       >
                         {u.activo ? 'Desactivar' : 'Activar'}
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 
