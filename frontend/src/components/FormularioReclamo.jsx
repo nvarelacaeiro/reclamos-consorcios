@@ -7,12 +7,13 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
   const [categorias,  setCategorias]  = useState([]);
   const [edificios,   setEdificios]   = useState([]);
   const [proveedores, setProveedores] = useState([]);
+  const [operadores,  setOperadores]  = useState([]);
 
   const [form, setForm] = useState({
     tipo_id: '', titulo: '',
     edificio_id: '', edificio_texto: '',
     unidad_texto: '', prioridad: 'media',
-    descripcion: '', proveedor_id: '',
+    descripcion: '', proveedor_id: '', asignado_a: '',
   });
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,7 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
     api.get('/categorias').then(r => setCategorias(r.data));
     api.get('/edificios').then(r => setEdificios(r.data));
     api.get('/proveedores').then(r => setProveedores(r.data));
+    api.get('/reclamos/operadores').then(r => setOperadores(r.data));
   }, []);
 
   // Alerta de repetidos
@@ -66,11 +68,13 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
       const { data } = await api.post('/reclamos', {
         titulo:         form.titulo,
         descripcion:    form.descripcion || null,
+        edificio_id:    form.edificio_id  || null,
         edificio_texto: form.edificio_texto.trim(),
         unidad_texto:   form.unidad_texto.trim() || null,
         tipo_id:        form.tipo_id,
         prioridad:      form.prioridad,
         proveedor_id:   form.proveedor_id || null,
+        asignado_a:     form.asignado_a   || null,
       });
       onGuardado(data);
     } catch (err) {
@@ -128,6 +132,18 @@ export default function FormularioReclamo({ onGuardado, onCancelar }) {
                 ))}
               </select>
             </div>
+            <div>
+              <label>Operador responsable</label>
+              <select value={form.asignado_a} onChange={e => set('asignado_a', e.target.value)}>
+                <option value="">Sin asignar</option>
+                {operadores.map(o => (
+                  <option key={o.id} value={o.id}>{o.nombre}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
             <div>
               <label>Proveedor asignado</label>
               <select value={form.proveedor_id} onChange={e => set('proveedor_id', e.target.value)}>

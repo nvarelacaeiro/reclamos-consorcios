@@ -47,11 +47,49 @@ body {
 /* ============================================================
    Login
    ============================================================ */
+@keyframes blobFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  33%       { transform: translateY(-28px) scale(1.04); }
+  66%       { transform: translateY(18px) scale(0.97); }
+}
+
 .login-page {
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  background: #f1f5f9;
+  background: #eef2f7;
   padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blobs decorativos: círculos difusos animados, sin impacto de rendimiento */
+.login-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: .18;
+  pointer-events: none;
+  will-change: transform;
+}
+.login-blob--1 {
+  width: 520px; height: 520px;
+  background: #1e3a5f;
+  top: -160px; left: -160px;
+  animation: blobFloat 14s ease-in-out infinite;
+}
+.login-blob--2 {
+  width: 420px; height: 420px;
+  background: #3b82f6;
+  bottom: -120px; right: -120px;
+  animation: blobFloat 11s ease-in-out infinite;
+  animation-delay: -4s;
+}
+.login-blob--3 {
+  width: 280px; height: 280px;
+  background: #64748b;
+  top: 55%; left: 55%;
+  animation: blobFloat 9s ease-in-out infinite;
+  animation-delay: -8s;
 }
 .login-card {
   background: var(--surface);
@@ -60,6 +98,7 @@ body {
   width: 100%; max-width: 380px;
   box-shadow: 0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
   border: 1px solid var(--border);
+  position: relative; z-index: 1;
 }
 .login-brand {
   display: flex; align-items: center; justify-content: center;

@@ -95,31 +95,69 @@ export default function EstadisticasDashboard() {
         {stats.repetidos.length === 0 ? (
           <p className="sin-datos">No hay reclamos repetidos actualmente.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Título</th>
-                <th>Edificio</th>
-                <th>Tipo</th>
-                <th>Repeticiones</th>
-                <th>Prioridad</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Desktop */}
+            <div className="tabla-desktop">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    <th>Edificio</th>
+                    <th>Tipo</th>
+                    <th>Repeticiones</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.repetidos.map(r => (
+                    <tr key={r.id}>
+                      <td>{r.id}</td>
+                      <td>{r.titulo}</td>
+                      <td>{r.edificio_nombre}</td>
+                      <td>{r.tipo_nombre}</td>
+                      <td>
+                        <strong style={{ color: r.repeticiones >= 3 ? '#c62828' : '#e65100' }}>
+                          {r.repeticiones}x
+                        </strong>
+                      </td>
+                      <td>
+                        <span
+                          className="badge-prioridad"
+                          style={{
+                            background: `${PRIORIDAD_COLOR[r.prioridad]}22`,
+                            color: PRIORIDAD_COLOR[r.prioridad],
+                          }}
+                        >
+                          {r.prioridad}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`estado estado-${r.estado}`}>
+                          {ESTADO_LABEL[r.estado]}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="tabla-mobile" style={{ padding: '8px 0 0' }}>
               {stats.repetidos.map(r => (
-                <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.titulo}</td>
-                  <td>{r.edificio_nombre}</td>
-                  <td>{r.tipo_nombre}</td>
-                  <td>
-                    <strong style={{ color: r.repeticiones >= 3 ? '#c62828' : '#e65100' }}>
+                <div key={r.id} className="gestion-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                    <div className="gestion-card-title" style={{ flex: 1 }}>{r.titulo}</div>
+                    <strong style={{ color: r.repeticiones >= 3 ? '#c62828' : '#e65100', fontSize: 13, flexShrink: 0 }}>
                       {r.repeticiones}x
                     </strong>
-                  </td>
-                  <td>
+                  </div>
+                  <div className="gestion-card-sub">
+                    🏢 {r.edificio_nombre} · {r.tipo_nombre}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                     <span
                       className="badge-prioridad"
                       style={{
@@ -129,16 +167,14 @@ export default function EstadisticasDashboard() {
                     >
                       {r.prioridad}
                     </span>
-                  </td>
-                  <td>
                     <span className={`estado estado-${r.estado}`}>
                       {ESTADO_LABEL[r.estado]}
                     </span>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>

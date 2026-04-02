@@ -71,7 +71,8 @@ export default function DetalleReclamo({ reclamoId, onCerrar, onActualizado }) {
           <MetaItem label="🚪 Unidad"    value={reclamo.unidad_numero} />
           <MetaItem label="🔧 Tipo"      value={reclamo.tipo_nombre} />
           <MetaItem label="⚡ Prioridad" value={reclamo.prioridad} />
-          <MetaItem label="👤 Operador"  value={reclamo.creado_por_nombre} />
+          <MetaItem label="👤 Creado por" value={reclamo.creado_por_nombre} />
+          <MetaItem label="🧑‍💼 Asignado a" value={reclamo.asignado_nombre} />
           <MetaItem label="📅 Cargado"   value={fmtFecha(reclamo.created_at)} />
           {reclamo.proveedor_nombre && (
             <span className="detalle-meta-item">
@@ -94,7 +95,7 @@ export default function DetalleReclamo({ reclamoId, onCerrar, onActualizado }) {
 
         <hr />
 
-        <h3 className="historial-title">Cambiar estado</h3>
+        <h3 className="historial-title">Seguimiento</h3>
         <div className="form-row" style={{ marginBottom: 10 }}>
           <select value={estado} onChange={e => setEstado(e.target.value)}>
             {ESTADOS.map(s => (
@@ -105,33 +106,50 @@ export default function DetalleReclamo({ reclamoId, onCerrar, onActualizado }) {
         <textarea
           rows={2} value={nota}
           onChange={e => setNota(e.target.value)}
-          placeholder="Nota opcional sobre el cambio de estado"
+          placeholder={
+            estado === reclamo.estado
+              ? 'Agregá una nota de seguimiento (requerida para guardar sin cambiar estado)'
+              : 'Nota opcional sobre el cambio de estado'
+          }
           style={{ marginBottom: 10 }}
         />
         <button
           className="btn-primary"
           onClick={cambiarEstado}
-          disabled={loading || estado === reclamo.estado}
+          disabled={loading || (estado === reclamo.estado && !nota.trim())}
         >
-          {loading ? 'Guardando…' : 'Actualizar estado'}
+          {loading
+            ? 'Guardando…'
+            : estado !== reclamo.estado
+              ? 'Actualizar estado'
+              : 'Agregar seguimiento'}
         </button>
 
         {reclamo.historial?.length > 0 && (
           <>
             <hr />
-            <h3 className="historial-title">Historial de cambios</h3>
+            <h3 className="historial-title">Historial</h3>
             <ul className="historial">
               {reclamo.historial.map(h => (
                 <li key={h.id}>
                   <span className="hist-fecha">{fmtFecha(h.created_at)}</span>
                   <span className="hist-arrow"> · </span>
-                  <span className={`estado estado-${h.estado_anterior}`}>
-                    {ESTADO_LABEL[h.estado_anterior]}
-                  </span>
-                  <span className="hist-arrow"> → </span>
-                  <span className={`estado estado-${h.estado_nuevo}`}>
-                    {ESTADO_LABEL[h.estado_nuevo]}
-                  </span>
+                  {h.estado_anterior === h.estado_nuevo ? (
+                    /* Entrada de seguimiento sin cambio de estado */
+                    <span className={`estado estado-${h.estado_nuevo}`}>
+                      {ESTADO_LABEL[h.estado_nuevo]}
+                    </span>
+                  ) : (
+                    <>
+                      <span className={`estado estado-${h.estado_anterior}`}>
+                        {ESTADO_LABEL[h.estado_anterior]}
+                      </span>
+                      <span className="hist-arrow"> → </span>
+                      <span className={`estado estado-${h.estado_nuevo}`}>
+                        {ESTADO_LABEL[h.estado_nuevo]}
+                      </span>
+                    </>
+                  )}
                   {h.nota && <span className="hist-nota"> — {h.nota}</span>}
                   <span className="hist-user"> ({h.usuario_nombre})</span>
                 </li>

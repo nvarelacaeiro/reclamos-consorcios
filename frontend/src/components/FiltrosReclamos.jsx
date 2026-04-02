@@ -6,7 +6,6 @@ const PRIORIDADES = ['', 'baja', 'media', 'alta', 'urgente'];
 
 export default function FiltrosReclamos({ filtros, onChange }) {
   const [edificios, setEdificios] = useState([]);
-  const [unidades,  setUnidades]  = useState([]);
   const [tipos,     setTipos]     = useState([]);
 
   useEffect(() => {
@@ -14,16 +13,8 @@ export default function FiltrosReclamos({ filtros, onChange }) {
     api.get('/reclamos/tipos').then(r => setTipos(r.data));
   }, []);
 
-  useEffect(() => {
-    if (!filtros.edificio_id) { setUnidades([]); return; }
-    api.get(`/edificios/${filtros.edificio_id}/unidades`)
-      .then(r => setUnidades(r.data));
-  }, [filtros.edificio_id]);
-
   function set(field, value) {
-    const next = { ...filtros, [field]: value };
-    if (field === 'edificio_id') next.unidad_id = '';
-    onChange(next);
+    onChange({ ...filtros, [field]: value });
   }
 
   return (
@@ -31,15 +22,6 @@ export default function FiltrosReclamos({ filtros, onChange }) {
       <select value={filtros.edificio_id || ''} onChange={e => set('edificio_id', e.target.value)}>
         <option value="">Todos los edificios</option>
         {edificios.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
-      </select>
-
-      <select
-        value={filtros.unidad_id || ''}
-        onChange={e => set('unidad_id', e.target.value)}
-        disabled={!filtros.edificio_id}
-      >
-        <option value="">Todas las unidades</option>
-        {unidades.map(u => <option key={u.id} value={u.id}>{u.numero}</option>)}
       </select>
 
       <select value={filtros.tipo_id || ''} onChange={e => set('tipo_id', e.target.value)}>

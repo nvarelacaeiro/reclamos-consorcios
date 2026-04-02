@@ -25,6 +25,10 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      {/* Blobs decorativos animados — solo CSS, sin JS externo */}
+      <div className="login-blob login-blob--1" aria-hidden="true" />
+      <div className="login-blob login-blob--2" aria-hidden="true" />
+      <div className="login-blob login-blob--3" aria-hidden="true" />
       <div className="login-card">
         <div className="login-brand">
           <img src="/logo-catsa.png" alt="CATSA" className="login-logo" />

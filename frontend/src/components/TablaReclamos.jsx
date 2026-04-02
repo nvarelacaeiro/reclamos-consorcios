@@ -81,7 +81,7 @@ export default function TablaReclamos({ onSeleccionar, onNuevo, reclamoActualiza
                   <th>Estado</th>
                   <th>Reps.</th>
                   <th>Proveedor</th>
-                  <th>Operador</th>
+                  <th>Asignado</th>
                   <th>Fecha</th>
                   <th></th>
                 </tr>
@@ -115,7 +115,9 @@ export default function TablaReclamos({ onSeleccionar, onNuevo, reclamoActualiza
                     <td className="td-operador">
                       {r.proveedor_nombre || <span style={{ color: 'var(--text-3)' }}>—</span>}
                     </td>
-                    <td className="td-operador">{r.creado_por_nombre}</td>
+                    <td className="td-operador">
+                      {r.asignado_nombre || <span style={{ color: 'var(--text-3)' }}>—</span>}
+                    </td>
                     <td className="td-fecha">{fmtFecha(r.created_at)}</td>
                     <td className="acciones-col" onClick={e => e.stopPropagation()}>
                       <button
@@ -176,9 +178,11 @@ export default function TablaReclamos({ onSeleccionar, onNuevo, reclamoActualiza
                 </div>
 
                 <div className="card-meta" style={{ marginTop: 0 }}>
-                  <span className="card-meta-item">
-                    <span className="card-meta-label">👤</span> {r.creado_por_nombre}
-                  </span>
+                  {r.asignado_nombre && (
+                    <span className="card-meta-item">
+                      <span className="card-meta-label">🧑‍💼</span> {r.asignado_nombre}
+                    </span>
+                  )}
                   <span className="card-meta-item">
                     <span className="card-meta-label">📅</span> {fmtFecha(r.created_at)}
                   </span>
