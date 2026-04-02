@@ -29,6 +29,7 @@ export default function Login() {
       <div className="login-blob login-blob--1" aria-hidden="true" />
       <div className="login-blob login-blob--2" aria-hidden="true" />
       <div className="login-blob login-blob--3" aria-hidden="true" />
+      <div className="login-blob login-blob--4" aria-hidden="true" />
       <div className="login-card">
         <div className="login-brand">
           <img src="/logo-catsa.png" alt="CATSA" className="login-logo" />
